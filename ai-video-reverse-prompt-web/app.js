@@ -1,116 +1,106 @@
-const $ = (selector) => document.querySelector(selector);
-const $$ = (selector) => [...document.querySelectorAll(selector)];
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
-const state = { files: [] };
+let zoom = 1;
+let nodeCount = 4;
 
-function showToast(text = "已复制") {
-  const toast = $("#toast");
-  toast.textContent = text;
-  toast.classList.add("show");
-  clearTimeout(showToast.timer);
-  showToast.timer = setTimeout(() => toast.classList.remove("show"), 1600);
+function toast(message) {
+  const el = $("#toast");
+  el.textContent = message;
+  el.classList.add("show");
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => el.classList.remove("show"), 1800);
 }
 
-function switchSection(target) {
-  $$(".panel-section").forEach(el => el.classList.toggle("active-section", el.id === target));
-  $$(".nav-item").forEach(el => el.classList.toggle("active", el.dataset.target === target));
-  window.scrollTo({ top: 0, behavior: "smooth" });
+function selectNode(node) {
+  $$(".flow-node").forEach((item) => item.classList.remove("selected"));
+  node.classList.add("selected");
+  const name = node.dataset.node || $("header b", node).textContent;
+  $("#propertyTitle").textContent = name;
+  $("#nodeName").value = $("header b", node).textContent;
 }
 
-$$(".nav-item").forEach(btn => btn.addEventListener("click", () => switchSection(btn.dataset.target)));
-
-function renderFiles() {
-  const list = $("#fileList");
-  list.innerHTML = state.files.map((file, index) => `
-    <div class="file-item">
-      <b>${file.name}</b>
-      <span>${(file.size / 1024 / 1024).toFixed(2)} MB · <button data-remove="${index}" style="all:unset;color:#ff8768;cursor:pointer">移除</button></span>
-    </div>`).join("");
-  $$('[data-remove]').forEach(btn => btn.addEventListener('click', () => {
-    state.files.splice(Number(btn.dataset.remove), 1);
-    renderFiles();
-  }));
+function bindNode(node) {
+  node.addEventListener("click", (event) => {
+    event.stopPropagation();
+    selectNode(node);
+  });
+  let dragging = false;
+  let origin = null;
+  node.addEventListener("pointerdown", (event) => {
+    if (event.target.closest("button")) return;
+    dragging = true;
+    origin = { x: event.clientX, y: event.clientY, left: node.offsetLeft, top: node.offsetTop };
+    node.setPointerCapture(event.pointerId);
+  });
+  node.addEventListener("pointermove", (event) => {
+    if (!dragging) return;
+    node.style.left = `${Math.max(20, origin.left + (event.clientX - origin.x) / zoom)}px`;
+    node.style.top = `${Math.max(20, origin.top + (event.clientY - origin.y) / zoom)}px`;
+  });
+  node.addEventListener("pointerup", () => { dragging = false; });
 }
 
-function addFiles(fileList) {
-  state.files.push(...[...fileList]);
-  renderFiles();
-}
+$$(".flow-node").forEach(bindNode);
 
-$("#fileInput").addEventListener("change", e => addFiles(e.target.files));
-const dropzone = $("#dropzone");
-["dragenter", "dragover"].forEach(event => dropzone.addEventListener(event, e => {
-  e.preventDefault(); dropzone.classList.add("dragover");
+$("#nodeSearch").addEventListener("input", (event) => {
+  const key = event.target.value.trim().toLowerCase();
+  $$(".library-node").forEach((node) => {
+    node.style.display = node.textContent.toLowerCase().includes(key) ? "flex" : "none";
+  });
+});
+
+$$(".library-node").forEach((button) => button.addEventListener("click", () => {
+  const type = button.dataset.type;
+  const node = document.createElement("article");
+  node.className = "flow-node new-node";
+  node.dataset.node = type;
+  node.style.cssText = `left:${260 + nodeCount * 35}px;top:${360 + (nodeCount % 3) * 25}px`;
+  node.innerHTML = `<i class="port in"></i><header>${$(".node-symbol", button).outerHTML}<span><b>${type}</b><small>NEW NODE</small></span><button>•••</button></header><div class="node-body stack"><label>状态 <span>待配置</span></label><label>输入 <span>未连接</span></label></div><footer><i class="warning"></i> 请完成配置</footer><i class="port out"></i>`;
+  $("#workflowCanvas").append(node);
+  nodeCount += 1;
+  bindNode(node);
+  selectNode(node);
+  toast(`已添加「${type}」节点`);
 }));
-["dragleave", "drop"].forEach(event => dropzone.addEventListener(event, e => {
-  e.preventDefault(); dropzone.classList.remove("dragover");
-}));
-dropzone.addEventListener("drop", e => addFiles(e.dataTransfer.files));
 
-$("#clearUrlBtn").addEventListener("click", () => $("#videoUrl").value = "");
+$("#saveNode").addEventListener("click", () => {
+  const selected = $(".flow-node.selected");
+  if (selected) $("header b", selected).textContent = $("#nodeName").value.trim() || selected.dataset.node;
+  toast("节点配置已保存");
+});
 
-$$(".chip").forEach(chip => chip.addEventListener("click", () => chip.classList.toggle("selected")));
-$$("input[name='depth']").forEach(radio => radio.addEventListener("change", () => {
-  $$(".depth-card").forEach(card => card.classList.toggle("selected-depth", card.querySelector("input").checked));
-}));
-
-function getSelected(selector) {
-  return $$(selector).filter(el => el.checked || el.classList.contains("selected")).map(el => el.value || el.dataset.value);
+function setZoom(value) {
+  zoom = Math.min(1.4, Math.max(0.6, value));
+  $("#workflowCanvas").style.transform = `scale(${zoom})`;
+  $("#zoomValue").textContent = `${Math.round(zoom * 100)}%`;
 }
+$("#zoomIn").addEventListener("click", () => setZoom(zoom + 0.1));
+$("#zoomOut").addEventListener("click", () => setZoom(zoom - 0.1));
+$("#fitCanvas").addEventListener("click", () => setZoom(0.8));
 
-function buildTaskPrompt() {
-  const files = state.files.length ? state.files.map(f => f.name).join("、") : "未上传文件";
-  const url = $("#videoUrl").value.trim() || "未提供链接";
-  const notes = $("#materialNotes").value.trim() || "无额外说明";
-  const focuses = $$("#focusChips .selected").map(el => el.dataset.value).join("、") || "完整拆解";
-  const preserves = $$("#preserveOptions input:checked").map(el => el.value).join("、") || "未指定";
-  const depth = $("input[name='depth']:checked").value;
-
-  return `${FULL_SYSTEM_PROMPT}\n\n---\n\n# 本次分析任务\n\n请按照以上“AI短视频／短剧镜头拆解与提示词反推专家指令”，分析我提供的视频素材。\n\n## 输入素材\n- 上传文件：${files}\n- 视频链接：${url}\n- 素材补充说明：${notes}\n\n## 本次分析目标\n- 分析重点：${focuses}\n- 生成用途：${$("#usage").value}\n- 目标平台：${$("#platform").value}\n- 输出比例：${$("#ratio").value}\n- 单镜头目标时长：${$("#shotDuration").value}\n- 完整视频目标时长：${$("#totalDuration").value}\n- 重点保留：${preserves}\n- 输出深度：${depth}\n\n## 执行要求\n1. 先判断素材是否足以支撑完整分析。\n2. 如可读取完整视频，先输出镜头时间码目录，再逐镜头展开。\n3. 如只能读取截图或文字，只分析可确认信息，不虚构缺失镜头。\n4. 对复杂长镜头给出拆镜方案。\n5. 最终输出可直接用于AI视频生成工具的中文、英文、精简版、运镜版、表演版、首尾帧和负面提示词。\n\n现在开始分析。`;
-}
-
-function generate() {
-  const prompt = buildTaskPrompt();
-  $("#emptyOutput").classList.add("hidden");
-  $("#promptOutput").classList.remove("hidden");
-  $("#promptOutput").textContent = prompt;
-  $("#promptOutput").scrollTop = 0;
-  document.querySelector(".output-card").scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-$("#generateBtn").addEventListener("click", generate);
-$("#copyBtn").addEventListener("click", async () => {
-  const text = $("#promptOutput").textContent || buildTaskPrompt();
-  await navigator.clipboard.writeText(text);
-  showToast("任务包已复制");
+$("#runWorkflow").addEventListener("click", () => {
+  const panel = $("#runPanel");
+  panel.classList.add("show");
+  const steps = [[25, "正在读取视频输入..."], [50, "正在进行智能镜头拆解..."], [75, "正在生成创意文案..."], [100, "工作流运行完成"]];
+  let index = 0;
+  clearInterval(window.runTimer);
+  const update = () => {
+    const [percent, text] = steps[index];
+    $("#runPercent").textContent = `${percent}%`;
+    $("#runStatus").textContent = text;
+    if (percent === 100) { $(".spinner", panel).classList.add("done"); clearInterval(window.runTimer); }
+    index = Math.min(index + 1, steps.length - 1);
+  };
+  update();
+  window.runTimer = setInterval(update, 850);
 });
-$("#copySystemBtn").addEventListener("click", async () => {
-  await navigator.clipboard.writeText(FULL_SYSTEM_PROMPT);
-  showToast("总指令已复制");
-});
-$("#downloadBtn").addEventListener("click", () => {
-  const text = $("#promptOutput").textContent || buildTaskPrompt();
-  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `AI视频反推分析任务_${new Date().toISOString().slice(0,10)}.txt`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-});
+$("#closeRun").addEventListener("click", () => $("#runPanel").classList.remove("show"));
+$("#newWorkflow").addEventListener("click", () => toast("已创建空白工作流"));
+$("#workflowCanvas").addEventListener("click", () => $$(".flow-node").forEach((node) => node.classList.remove("selected")));
 
-$("#loadDemoBtn").addEventListener("click", () => {
-  $("#videoUrl").value = "https://example.com/reference-video";
-  $("#materialNotes").value = "重点分析人物从克制到情绪崩溃的微表情变化，保留冷蓝色夜景、浅景深、缓慢推进和低频氛围音。";
-  $("#platform").value = "可灵";
-  $("#usage").value = "首尾帧生成";
-  $("#ratio").value = "9:16 竖屏";
-  generate();
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Delete" || ["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) return;
+  const selected = $(".flow-node.selected");
+  if (selected) { selected.remove(); toast("节点已删除"); }
 });
-
-const accordion = $("#instructionAccordion");
-accordion.innerHTML = SYSTEM_PROMPT_SECTIONS.map((section, index) => `
-  <article class="accordion-item ${index === 0 ? 'open' : ''}">
-    <button class="accordion-head"><span>${section.title}</span><span>＋</span></button>
-    <div class="accordion-body">${section.body}</div>
-  </article>`).join("");
-$$(".accordion-head").forEach(head => head.addEventListener("click", () => head.parentElement.classList.toggle("open")));
