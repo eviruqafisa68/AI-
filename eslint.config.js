@@ -7,5 +7,6 @@ export default tseslint.config(
   { ignores: ['dist', 'ai-video-reverse-prompt-web'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
-  { files: ['**/*.{ts,tsx}'], languageOptions: { globals: globals.browser }, plugins: { 'react-hooks': hooks, 'react-refresh': refresh }, rules: { ...hooks.configs.recommended.rules, 'react-refresh/only-export-components': ['warn', { allowConstantExport: true }] } }
+  { files: ['**/*.{ts,tsx}'], languageOptions: { globals: globals.browser }, plugins: { 'react-hooks': hooks, 'react-refresh': refresh }, rules: { ...hooks.configs.recommended.rules, 'react-refresh/only-export-components': ['warn', { allowConstantExport: true }] } },
+  { files: ['src/test/**/*.{ts,tsx}'], languageOptions: { globals: globals.vitest } }
 );

@@ -25,6 +25,7 @@ npm run lint
 npm run test
 npm run build
 npm run preview
+npm run verify
 ```
 
 复制 `.env.example` 为本地环境文件（不要提交真实 `.env`）：
@@ -41,7 +42,9 @@ VITE_ENABLE_MOCK=true
 
 `/`、`/dashboard`、`/projects`、`/projects/new`、`/projects/:id`、`/script`、`/video`、`/reverse-video`、`/assets`、`/templates`、`/generations`、`/team`、`/billing`、`/help`、`/settings`。
 
-Vercel 的 `vercel.json` 已提供 SPA 回退；子路由刷新会重写到 `index.html`。
+Vercel 的 `vercel.json` 已提供 SPA 回退；子路由刷新会重写到 `index.html`。Pull Request 与 `main` 分支会由 `.github/workflows/frontend-ci.yml` 自动执行类型检查、lint、测试和生产构建，并上传 `dist` 构建产物。
+
+面向非技术用户的 GitHub 检查、Vercel 部署和逐路由验收步骤见 [`docs/FRONTEND_DEPLOYMENT_GUIDE.md`](docs/FRONTEND_DEPLOYMENT_GUIDE.md)。
 
 ## 部署到 Vercel
 
