@@ -1,0 +1,10 @@
+import type {Project,Template,RecordItem} from '../types';
+export const projects:Project[]=[['demo','古风悬疑AI短剧','AI短剧','9:16','分镜设计',32,18,'林墨','10分钟前','#65342d'],['city','都市人物情绪片','情绪短片','16:9','视频生成',24,16,'周岚','昨天','#283f5a'],['travel','云上黔东南·文旅宣传片','文旅宣传','16:9','剧本已确认',18,8,'赵可','2天前','#314c43'],['product','一杯咖啡的午夜故事','剧情带货','9:16','角色设定',20,5,'陈屿','3天前','#55432f']].map(([id,name,type,ratio,stage,shots,done,owner,updated,color])=>({id,name,type,ratio,stage,shots,done,owner,updated,color} as Project));
+const templateNames=['小说转AI漫剧','AI短剧','AI剧情带货','品牌广告','文旅宣传','招生宣传','企业宣传','人物情绪片','产品展示','视频提示词反推'];
+export const templates:Template[]=templateNames.map((name,i)=>({id:String(i+1),name,scene:['故事改编','短视频','商业内容','品牌传播'][i%4],ratio:i%2?'16:9':'9:16',duration:`${30+i*10}秒`,users:1280+i*347,color:['#54332f','#263b52','#3d4939','#51452e'][i%4]}));
+export const records:RecordItem[]=Array.from({length:10},(_,i)=>({id:`RRB-2607-${String(81+i).padStart(4,'0')}`,project:projects[i%4].name,shot:`S${String(i+1).padStart(2,'0')}`,type:i%2?'视频生成':'分镜图',model:i%2?'演示视频模型 V2':'演示图像模型 X',status:['成功','生成中','排队中','失败'][i%4],points:12+i*3,operator:['林墨','周岚','赵可'][i%3]}));
+export const characters=['沈砚｜落魄画师，冷静克制','顾清辞｜司天监女官，敏锐果决','阿阮｜药铺学徒，天真机敏','陆循｜禁军校尉，沉默忠诚'];
+export const scenes=['雨夜长安西市','司天监藏星阁','废弃王府庭院','城南临水药铺'];
+export const props=['裂纹铜镜','密封星图卷轴','鎏金短刃'];
+export const team=['林墨｜导演 / 管理员','周岚｜编剧 / 编辑者','赵可｜美术 / 编辑者','陈屿｜后期 / 编辑者','叶青｜客户 / 审阅者'];
+export const bills=Array.from({length:10},(_,i)=>({id:`BILL-${260701+i}`,item:['分镜图生成','视频生成','剧本解析'][i%3],points:18+i*4,date:`2026-07-${String(20-i).padStart(2,'0')}`}));
