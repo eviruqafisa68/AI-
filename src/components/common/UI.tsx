@@ -1,0 +1,6 @@
+import type {ReactNode} from 'react'; import {X} from 'lucide-react'; import {useAppStore} from '../../stores/appStore';
+export const DemoBanner=({children='演示模式 · 真实服务将在后续开发阶段接入'}:{children?:ReactNode})=><div className="demo-banner">● {children}</div>;
+export function Modal({title,children,onClose}:{title:string;children:ReactNode;onClose:()=>void}){return <div className="modal-backdrop" role="presentation" onMouseDown={onClose}><section className="modal" role="dialog" aria-modal="true" aria-label={title} onMouseDown={e=>e.stopPropagation()}><header><h2>{title}</h2><button className="icon" onClick={onClose} aria-label="关闭"><X size={18}/></button></header>{children}</section></div>}
+export function Toast(){const {toast,setToast}=useAppStore(); if(!toast)return null; return <button className="toast" onClick={()=>setToast('')}>{toast}</button>}
+export const Progress=({value}:{value:number})=><div className="progress" aria-label={`进度 ${value}%`}><i style={{width:`${value}%`}}/></div>;
+export function PageHead({eyebrow='PRODUCTION DESK',title,desc,actions}:{eyebrow?:string;title:string;desc:string;actions?:ReactNode}){return <div className="page-head"><div><small>{eyebrow}</small><h1>{title}</h1><p>{desc}</p></div><div className="actions">{actions}</div></div>}

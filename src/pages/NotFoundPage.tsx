@@ -1,0 +1,1 @@
+import {Link} from 'react-router-dom';export default function NotFoundPage(){return <div className="not-found"><b>404</b><h1>这个镜头不在脚本里</h1><p>页面可能已移动，返回工作台继续制作。</p><Link className="primary" to="/dashboard">返回工作台</Link></div>}
