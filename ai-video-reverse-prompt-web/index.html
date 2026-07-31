@@ -1,279 +1,106 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AI短视频/短剧镜头拆解与提示词反推工作台" />
-  <title>AI镜头反推工作台</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FlowMind 可视化 AI 工作流创作平台">
+  <title>FlowMind · AI 工作流</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <div class="page-shell">
+  <div class="app-shell">
     <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark">R</div>
-        <div>
-          <strong>Reverse Director</strong>
-          <span>AI镜头反推工作台</span>
-        </div>
-      </div>
-
-      <nav class="side-nav" aria-label="主导航">
-        <button class="nav-item active" data-target="workspace"><span>01</span>分析工作台</button>
-        <button class="nav-item" data-target="instruction"><span>02</span>总指令库</button>
-        <button class="nav-item" data-target="workflow"><span>03</span>制作流程</button>
-        <button class="nav-item" data-target="help"><span>04</span>部署说明</button>
+      <a class="logo" href="#" aria-label="FlowMind 首页"><span class="logo-mark">F</span><strong>FlowMind</strong></a>
+      <button class="create-btn" id="newWorkflow"><span>＋</span> 新建工作流</button>
+      <nav class="nav-list" aria-label="主导航">
+        <button class="nav-item active"><span class="nav-icon">▦</span>工作台</button>
+        <button class="nav-item"><span class="nav-icon">◈</span>工作流广场</button>
+        <button class="nav-item"><span class="nav-icon">◇</span>我的应用</button>
+        <button class="nav-item"><span class="nav-icon">▱</span>素材中心</button>
       </nav>
-
-      <div class="sidebar-note">
-        <div class="status-dot"></div>
-        <div>
-          <b>前端 MVP</b>
-          <p>支持素材整理、参数配置、提示词生成、复制与导出。</p>
-        </div>
+      <div class="nav-group-title">资源管理</div>
+      <nav class="nav-list secondary">
+        <button class="nav-item"><span class="nav-icon">⌁</span>模型管理</button>
+        <button class="nav-item"><span class="nav-icon">◎</span>知识库</button>
+        <button class="nav-item"><span class="nav-icon">⌘</span>API 密钥</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="usage-card"><div><span>本月算力</span><b>72%</b></div><div class="progress"><i></i></div><small>14,420 / 20,000 点</small></div>
+        <button class="user-card"><span class="avatar">林</span><span><b>林墨</b><small>个人专业版</small></span><i>•••</i></button>
       </div>
     </aside>
 
-    <main class="main-content">
+    <main class="main">
       <header class="topbar">
-        <div>
-          <p class="eyebrow">AI VIDEO REVERSE ENGINEERING</p>
-          <h1>把一条视频，拆成可执行的导演语言</h1>
-        </div>
-        <div class="top-actions">
-          <button class="ghost-btn" id="loadDemoBtn">载入示例</button>
-          <button class="primary-btn" id="generateBtn">生成分析任务</button>
+        <div class="breadcrumb"><button>我的工作台</button><span>/</span><strong contenteditable="true">短视频智能生产工作流</strong><span class="saved"><i></i>已保存</span></div>
+        <div class="header-actions">
+          <button class="icon-button" title="撤销">↶</button><button class="icon-button" title="重做">↷</button>
+          <span class="action-divider"></span><button class="outline-button">预览</button><button class="run-button" id="runWorkflow"><span>▶</span> 运行工作流</button>
         </div>
       </header>
 
-      <section id="workspace" class="panel-section active-section">
-        <div class="hero-grid">
-          <section class="card upload-card">
-            <div class="section-heading">
-              <div>
-                <span class="step">STEP 01</span>
-                <h2>添加分析素材</h2>
-              </div>
-              <span class="badge">多输入兼容</span>
-            </div>
+      <section class="editor">
+        <aside class="node-library">
+          <div class="library-title"><div><strong>节点库</strong><small>拖拽节点到画布</small></div><button>‹</button></div>
+          <label class="search"><span>⌕</span><input id="nodeSearch" placeholder="搜索节点"></label>
+          <div class="node-category" data-category="input"><h3><span>⌄</span> 输入与触发</h3>
+            <button class="library-node" data-type="视频输入"><i class="node-symbol blue">▸</i><span><b>视频输入</b><small>上传或导入视频</small></span><em>⋮⋮</em></button>
+            <button class="library-node" data-type="文本输入"><i class="node-symbol cyan">T</i><span><b>文本输入</b><small>输入主题或文案</small></span><em>⋮⋮</em></button>
+          </div>
+          <div class="node-category"><h3><span>⌄</span> AI 能力</h3>
+            <button class="library-node" data-type="智能拆解"><i class="node-symbol purple">✦</i><span><b>智能拆解</b><small>识别内容与镜头</small></span><em>⋮⋮</em></button>
+            <button class="library-node" data-type="大模型"><i class="node-symbol orange">AI</i><span><b>大语言模型</b><small>理解、提取与生成</small></span><em>⋮⋮</em></button>
+            <button class="library-node" data-type="图像生成"><i class="node-symbol pink">▧</i><span><b>图像生成</b><small>生成高质量画面</small></span><em>⋮⋮</em></button>
+            <button class="library-node" data-type="视频生成"><i class="node-symbol green">▶</i><span><b>视频生成</b><small>多模型视频创作</small></span><em>⋮⋮</em></button>
+          </div>
+          <div class="node-category"><h3><span>›</span> 数据处理</h3></div>
+          <div class="node-category"><h3><span>›</span> 逻辑控制</h3></div>
+          <div class="node-category"><h3><span>›</span> 输出</h3></div>
+        </aside>
 
-            <label class="dropzone" id="dropzone" for="fileInput">
-              <input id="fileInput" type="file" multiple accept="video/*,image/*,.pdf,.txt,.doc,.docx" />
-              <div class="upload-icon">↥</div>
-              <strong>拖入视频、截图或分镜图</strong>
-              <p>支持 MP4 / MOV / JPG / PNG / PDF / 文本脚本</p>
-              <button type="button" class="small-btn">选择文件</button>
-            </label>
-            <div id="fileList" class="file-list"></div>
-
-            <div class="divider"><span>或</span></div>
-
-            <label class="field-label" for="videoUrl">视频链接</label>
-            <div class="url-row">
-              <input id="videoUrl" type="url" placeholder="粘贴抖音、B站、小红书、YouTube或其他视频链接" />
-              <button class="icon-btn" id="clearUrlBtn" type="button" aria-label="清空链接">×</button>
-            </div>
-
-            <label class="field-label" for="materialNotes">素材补充说明</label>
-            <textarea id="materialNotes" rows="5" placeholder="例如：重点分析00:08—00:21的人物微表情；原视频无字幕；希望保留冷蓝色夜景和压抑氛围。"></textarea>
-          </section>
-
-          <section class="card settings-card">
-            <div class="section-heading">
-              <div>
-                <span class="step">STEP 02</span>
-                <h2>设定反推目标</h2>
-              </div>
-              <span class="badge purple">导演模式</span>
-            </div>
-
-            <div class="form-group">
-              <label>本次重点</label>
-              <div class="chips" id="focusChips">
-                <button class="chip selected" data-value="完整拆解">完整拆解</button>
-                <button class="chip" data-value="运镜分析">运镜</button>
-                <button class="chip" data-value="微表情分析">微表情</button>
-                <button class="chip" data-value="节奏卡点分析">节奏卡点</button>
-                <button class="chip" data-value="转场分析">转场</button>
-                <button class="chip" data-value="提示词反推">提示词反推</button>
-                <button class="chip" data-value="二次创作">二次创作</button>
-              </div>
-            </div>
-
-            <div class="two-col">
-              <div class="form-group">
-                <label for="platform">目标平台</label>
-                <select id="platform">
-                  <option>通用平台</option>
-                  <option>即梦</option>
-                  <option>可灵</option>
-                  <option>Veo</option>
-                  <option>Sora</option>
-                  <option>Runway</option>
-                  <option>Pika</option>
-                  <option>豆包</option>
-                  <option>其他</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="usage">生成方式</label>
-                <select id="usage">
-                  <option>图生视频</option>
-                  <option>文生视频</option>
-                  <option>首尾帧生成</option>
-                  <option>AI短剧制作</option>
-                  <option>AI漫剧制作</option>
-                  <option>广告片制作</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="three-col">
-              <div class="form-group">
-                <label for="ratio">画面比例</label>
-                <select id="ratio">
-                  <option>9:16 竖屏</option>
-                  <option>16:9 横屏</option>
-                  <option>1:1 方形</option>
-                  <option>2.39:1 电影宽银幕</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="shotDuration">单镜时长</label>
-                <input id="shotDuration" value="5秒" />
-              </div>
-              <div class="form-group">
-                <label for="totalDuration">成片时长</label>
-                <input id="totalDuration" value="60秒" />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>重点保留</label>
-              <div class="check-grid" id="preserveOptions">
-                <label><input type="checkbox" value="镜头结构" checked />镜头结构</label>
-                <label><input type="checkbox" value="人物表演" checked />人物表演</label>
-                <label><input type="checkbox" value="微表情" checked />微表情</label>
-                <label><input type="checkbox" value="运镜" checked />运镜</label>
-                <label><input type="checkbox" value="光影" checked />光影</label>
-                <label><input type="checkbox" value="色彩" checked />色彩</label>
-                <label><input type="checkbox" value="剪辑节奏" checked />剪辑节奏</label>
-                <label><input type="checkbox" value="情绪曲线" checked />情绪曲线</label>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>输出深度</label>
-              <div class="depth-options">
-                <label class="depth-card">
-                  <input type="radio" name="depth" value="基础版" />
-                  <span><b>基础版</b><small>镜头拆解 + 核心提示词</small></span>
-                </label>
-                <label class="depth-card">
-                  <input type="radio" name="depth" value="专业版" />
-                  <span><b>专业版</b><small>摄影、表演、灯光、剪辑</small></span>
-                </label>
-                <label class="depth-card selected-depth">
-                  <input type="radio" name="depth" value="制作版" checked />
-                  <span><b>制作版</b><small>一致性、首尾帧、风险与流程</small></span>
-                </label>
-              </div>
-            </div>
-          </section>
+        <div class="canvas-wrap" id="canvasWrap">
+          <div class="canvas-tools"><button class="active">⌖</button><button>↗</button><button>□</button><button>T</button><span></span><button>↶</button><button>↷</button></div>
+          <div class="workflow-canvas" id="workflowCanvas">
+            <svg class="connections" aria-hidden="true"><path d="M 320 244 C 370 244, 365 244, 415 244"/><path d="M 665 244 C 720 244, 710 244, 765 244"/><path d="M 1015 244 C 1065 244, 1055 244, 1105 244"/></svg>
+            <article class="flow-node input-node selected" style="left:70px;top:155px" data-node="视频输入">
+              <header><i class="node-symbol blue">▸</i><span><b>视频输入</b><small>INPUT</small></span><button>•••</button></header><div class="node-body"><span class="file-preview">🎬</span><div><b>brand_story.mp4</b><small>1080P · 01:24</small></div></div><i class="port out"></i>
+            </article>
+            <article class="flow-node" style="left:415px;top:138px" data-node="智能拆解">
+              <i class="port in"></i><header><i class="node-symbol purple">✦</i><span><b>智能拆解</b><small>VISION ANALYSIS</small></span><button>•••</button></header><div class="node-body stack"><label>分析能力 <span>镜头拆解</span></label><label>输出格式 <span>结构化 JSON</span></label></div><footer><i></i> 配置完成</footer><i class="port out"></i>
+            </article>
+            <article class="flow-node" style="left:765px;top:138px" data-node="大语言模型">
+              <i class="port in"></i><header><i class="node-symbol orange">AI</i><span><b>文案再创作</b><small>LLM</small></span><button>•••</button></header><div class="node-body stack"><label>模型 <span>DeepSeek V3</span></label><label>创意程度 <span>0.8</span></label></div><footer><i></i> 配置完成</footer><i class="port out"></i>
+            </article>
+            <article class="flow-node" style="left:1105px;top:138px" data-node="视频生成">
+              <i class="port in"></i><header><i class="node-symbol green">▶</i><span><b>视频生成</b><small>VIDEO GENERATION</small></span><button>•••</button></header><div class="node-body stack"><label>模型 <span>可灵 2.1</span></label><label>画面比例 <span>9 : 16</span></label></div><footer><i class="warning"></i> 等待输入</footer><i class="port out"></i>
+            </article>
+            <div class="canvas-hint">按住空格拖动画布 · 滚轮缩放 · Delete 删除节点</div>
+          </div>
+          <div class="minimap"><div class="mini-flow"><i></i><i></i><i></i><i></i></div><span></span></div>
+          <div class="zoom-control"><button id="zoomOut">−</button><b id="zoomValue">100%</b><button id="zoomIn">＋</button><button id="fitCanvas">⌗</button></div>
         </div>
 
-        <section class="card output-card">
-          <div class="section-heading output-heading">
-            <div>
-              <span class="step">STEP 03</span>
-              <h2>分析任务包</h2>
-            </div>
-            <div class="output-actions">
-              <button class="ghost-btn compact" id="copyBtn">复制</button>
-              <button class="ghost-btn compact" id="downloadBtn">导出 TXT</button>
-            </div>
+        <aside class="property-panel">
+          <div class="property-head"><div><i class="node-symbol blue">▸</i><span><b id="propertyTitle">视频输入</b><small>节点配置</small></span></div><button>×</button></div>
+          <div class="property-content">
+            <label class="form-label">节点名称<input id="nodeName" value="视频输入"></label>
+            <label class="form-label">视频来源<select><option>本地上传</option><option>视频链接</option><option>素材库</option></select></label>
+            <div class="upload-box"><span>▧</span><b>点击或拖拽上传视频</b><small>支持 MP4、MOV，最大 500 MB</small><button>选择文件</button></div>
+            <div class="switch-row"><span><b>自动压缩</b><small>上传后优化文件大小</small></span><label class="switch"><input type="checkbox" checked><i></i></label></div>
+            <div class="switch-row"><span><b>提取音轨</b><small>将音频作为独立输出</small></span><label class="switch"><input type="checkbox"><i></i></label></div>
+            <div class="output-block"><strong>输出变量</strong><code><i></i> video_url <span>String</span></code><code><i></i> duration <span>Number</span></code></div>
           </div>
-          <div class="output-layout">
-            <div class="output-placeholder" id="emptyOutput">
-              <span>⌁</span>
-              <h3>等待生成任务</h3>
-              <p>填写素材与分析要求后，点击“生成分析任务”。</p>
-            </div>
-            <pre id="promptOutput" class="prompt-output hidden"></pre>
-          </div>
-        </section>
-      </section>
-
-      <section id="instruction" class="panel-section">
-        <section class="card instruction-card">
-          <div class="section-heading output-heading">
-            <div>
-              <span class="step">SYSTEM PROMPT</span>
-              <h2>AI短视频／短剧反推提示词总指令</h2>
-            </div>
-            <button class="primary-btn compact" id="copySystemBtn">复制完整总指令</button>
-          </div>
-          <p class="section-intro">用于定义AI的导演身份、拆解维度、提示词输出格式、连续性控制、二次创作和制作执行规则。</p>
-          <div id="instructionAccordion" class="accordion"></div>
-        </section>
-      </section>
-
-      <section id="workflow" class="panel-section">
-        <section class="card workflow-card">
-          <div class="section-heading">
-            <div>
-              <span class="step">PRODUCTION PIPELINE</span>
-              <h2>从参考视频到AI成片</h2>
-            </div>
-          </div>
-          <div class="timeline">
-            <article><span>01</span><div><h3>素材输入</h3><p>视频文件、链接、关键帧、分镜图或文字脚本。</p></div></article>
-            <article><span>02</span><div><h3>镜头识别</h3><p>按切镜、动作变化、情绪变化和场景变化建立时间码目录。</p></div></article>
-            <article><span>03</span><div><h3>导演拆解</h3><p>分析景别、机位、运镜、表演、光影、色彩、节奏、转场和声音。</p></div></article>
-            <article><span>04</span><div><h3>提示词反推</h3><p>生成中文、英文、精简版、运镜版、表演版、首尾帧与负面提示词。</p></div></article>
-            <article><span>05</span><div><h3>一致性设计</h3><p>锁定人物、服装、场景、光线、轴线、动作方向和镜头风格。</p></div></article>
-            <article><span>06</span><div><h3>生成与后期</h3><p>按镜头难度选择文生视频、图生视频、首尾帧、后期合成和剪辑。</p></div></article>
-          </div>
-        </section>
-      </section>
-
-      <section id="help" class="panel-section">
-        <section class="card help-card">
-          <div class="section-heading">
-            <div>
-              <span class="step">DEPLOYMENT</span>
-              <h2>部署与后端接入</h2>
-            </div>
-          </div>
-          <div class="help-grid">
-            <article>
-              <h3>静态部署</h3>
-              <p>当前版本可直接部署到 GitHub Pages、Vercel、Netlify 或任意静态服务器。</p>
-            </article>
-            <article>
-              <h3>AI能力接入</h3>
-              <p>生产版建议由服务端接收上传素材，再调用具备视频理解能力的多模态模型。不要把API密钥写在浏览器代码中。</p>
-            </article>
-            <article>
-              <h3>视频链接解析</h3>
-              <p>链接解析需要服务端下载、抽帧、音频转写和镜头切分；不同平台还需考虑访问授权与版权边界。</p>
-            </article>
-            <article>
-              <h3>推荐后端流程</h3>
-              <p>上传 → FFmpeg抽帧 → 镜头边界检测 → 音频转写 → 多模态分析 → 结构化JSON → 网页渲染与导出。</p>
-            </article>
-          </div>
-          <div class="code-box"><code>npm run dev  # 接入框架后本地开发\nGitHub Pages # 当前静态版可直接发布</code></div>
-        </section>
+          <div class="property-footer"><button class="danger">删除节点</button><button class="save" id="saveNode">保存配置</button></div>
+        </aside>
       </section>
     </main>
   </div>
 
-  <div id="toast" class="toast">已复制</div>
-  <script src="./prompt-data.js"></script>
+  <div class="run-panel" id="runPanel" aria-live="polite"><div class="spinner"></div><div><b>工作流正在运行</b><span id="runStatus">正在读取视频输入...</span></div><strong id="runPercent">25%</strong><button id="closeRun">×</button></div>
+  <div class="toast" id="toast">配置已保存</div>
   <script src="./app.js"></script>
 </body>
 </html>
