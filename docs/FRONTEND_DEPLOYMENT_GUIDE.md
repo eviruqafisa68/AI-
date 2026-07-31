@@ -56,7 +56,9 @@
 | Build Command | `npm run build` |
 | Output Directory | `dist` |
 
-仓库中的 `vercel.json` 已写入相同配置，并提供 React 单页路由回退。
+随后进入项目的 **Settings → General → Node.js Version**，明确选择 **24.x**。本项目正式运行和 CI 验证统一使用 **Node.js 24 LTS**，不要保留 Node.js 20。仓库中的 `package.json`、`.nvmrc` 和 GitHub Actions 已声明相同版本要求。
+
+仓库中的 `vercel.json` 已写入相同构建配置，并提供 React 单页路由回退。
 
 ## 七、填写演示环境变量
 

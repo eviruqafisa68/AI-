@@ -17,6 +17,8 @@
 
 ## 本地运行
 
+推荐使用 **Node.js 24 LTS**（项目通过 `.nvmrc` 和 `package.json` 的 `engines` 字段统一要求 Node.js `24.x`，npm `>=10`）。使用 nvm 时可先运行 `nvm use`。
+
 ```bash
 npm install
 npm run dev
@@ -49,7 +51,7 @@ Vercel 的 `vercel.json` 已提供 SPA 回退；子路由刷新会重写到 `ind
 ## 部署到 Vercel
 
 1. 在 Vercel 导入本 Git 仓库。
-2. Framework Preset 选择 **Vite**，Build Command 使用 `npm run build`，Output Directory 使用 `dist`。
+2. 在项目设置中将 Node.js Version 选择为 **24.x**，Framework Preset 选择 **Vite**，Build Command 使用 `npm run build`，Output Directory 使用 `dist`。
 3. 添加 `.env.example` 中的三个环境变量，保持演示环境的 `VITE_ENABLE_MOCK=true`。
 4. 部署后依次访问首页与任意子路由，确认 SPA 刷新、静态资源与移动端布局。
 
